@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "meu_projeto/public/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/api/submitForm", "dest": "meu_projeto/api/submitForm.js" }
+  ],
+  "functions": {
+    "api/submitForm.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
