@@ -20,27 +20,4 @@
     |-- package-lock.json
     |-- package.json
     |-- README.md
-|-- mente-12-main
-    |-- mente-12-main
-        |-- mente-12-main
-            |-- .gitignore
-            |-- .vercel
-                |-- project.json
-                |-- README.txt
-            |-- api
-                |-- submit.js
-            |-- form-handler.js
-            |-- index.html
-            |-- obrigado.html
-            |-- package-lock.json
-            |-- package.json
-            |-- README.md
-            |-- rules.md
-            |-- server.js
-            |-- supabase-config.js
-            |-- supabase-server-config.js
-            |-- web
-            |-- webform-mente-navigate.js
-            |-- webform-mente.css
-            |-- webform-mente.js
 |-- README.md
