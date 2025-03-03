@@ -1,4 +1,3 @@
-// Função para manipular o envio do formulário
 async function submitForm(event) {
     event.preventDefault();
 
@@ -10,18 +9,33 @@ async function submitForm(event) {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
+    let supabaseSuccess = false;
+
     try {
         // Enviar para Supabase
-        const supabaseResult = await submitToSupabase(data);
+        supabaseSuccess = await submitToSupabase(data) || false;
 
-        // Redirecionar para página de agradecimento
-        window.location.href = '/obrigado.html';
     } catch (error) {
-        showFlashMessage(error.message, 'error');
+        console.warn('Erro ao enviar para Supabase:', error);
+    }
+
+    try {
+        // Sempre tentar enviar para Google Apps Script
+        const googleSuccess = await submitToGoogleScript(data) || false;
+
+    } catch (googleError) {
+        console.warn('Falha no envio para Google Sheets', googleError);
+    }
+
+    // Redirecionar para página de agradecimento se pelo menos um envio foi bem-sucedido
+    if (supabaseSuccess || googleSuccess) {
+        window.location.href = '/obrigado.html';
+    } else {
+        showFlashMessage('Nenhum envio foi bem-sucedido.', 'error');
     }
 }
 
-// Adicionar event listener
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('myForm');
     form.addEventListener('submit', submitForm);
