@@ -1,13 +1,14 @@
 {
   "version": 2,
+  "rootDirectory": "meu_projeto",
   "builds": [
     {
-      "src": "meu_projeto/public/index.html",
+      "src": "public/index.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/api/submitForm", "dest": "meu_projeto/api/submitForm.js" }
+    { "src": "/api/submitForm", "dest": "api/submitForm.js" }
   ],
   "functions": {
     "api/submitForm.js": {
