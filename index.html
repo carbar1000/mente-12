@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário de Pesquisa</title>
-    <link rel="stylesheet" href="./styles/webform-mente.css">
+    <link rel="stylesheet" href="./webform-mente.css">
     <style>
         .hidden {
             display: none;
@@ -15,7 +15,7 @@
 </head>
 <body>
     <div id="intro" class="centered-text hide-on-click">
-        <h1>Tens Mente Empreendedora? >>>> 12.02 <<<<< </h1>
+        <h1>Tens Mente Empreendedora? >>>> 12.03 <<<<< </h1>
         <h3>Preencha este inquérito e descubra GRÁTIS agora!</h3>
         <div class="buttons">
             <button id="startButton" class="hide-on-click" onclick="startSurvey()">Comece Aqui →</button>
@@ -23,9 +23,7 @@
     </div>
 
     <form id="myForm" class="hidden" method="POST">
-
-    <!-- Para: -->
-   <form id="myForm" class="hidden" method="POST">
+        <input type="hidden" name="csrf_token" value="YOUR_CSRF_TOKEN_HERE">
         <!-- Seção Cor Favorita -->
         <div class="form-container active" id="cor-favorita">
             <div class="form-group">
@@ -114,7 +112,7 @@
         <div class="form-container" id="dados-pessoais">
             <div class="form-group">
                 <label for="nome">Nome completo</label>
-                <input type="text" id="nome" name="Nome" required aria-describedby="nome-help">
+                <input type="text" id="nome" name="Nome" required aria-describedby="nome-help" pattern="[A-Za-z\s]+" title="Por favor, insira apenas letras.">
             </div>
             <div class="buttons">
                 <button type="button" onclick="navigate(-1)">← Anterior</button>
@@ -125,104 +123,8 @@
         <div class="form-container" id="dados-contato">
             <div class="form-group">
                 <label for="email">E-mail</label>
-                <input type="email" id="email" name="Email" required 
-                aria-describedby="email-help" 
-                pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}">
+                <input type="email" id="email" name="Email" required aria-describedby="email-help" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}">
             </div>
-            
-            <!-- Adicionar antes do script de submissão -->
-<script>
-    // Função para enviar para Supabase via API
-    async function submitToSupabase(formData) {
-        try {
-            const response = await fetch('/api/submitForm', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Erro ao enviar para Supabase');
-            }
-
-            return result;
-        } catch (error) {
-            console.error('Erro no Supabase:', error);
-            throw error;
-        }
-    }
-
-    // Função para enviar para Google Apps Script
-    async function submitToGoogleScript(formData) {
-        try {
-            const response = await fetch('https://script.google.com/macros/s/AKfycbzdLpEgmmmlPFV_V-W0s9lF-f3QrtU4fBwmcQEAI5Et962tLFjsLms2FRSivtyYAx_3dA/exec', {
-                method: 'POST',
-                mode: 'cors', // Alterado de no-cors para cors
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (!response.ok) {
-                throw new Error('Erro ao enviar para Google Sheets');
-            }
-
-            return response.json();
-        } catch (error) {
-            console.error('Erro no Google Apps Script:', error);
-            throw error;
-        }
-    }
-
-    // Modificar função de submit existente
-    async function submitForm(event) {
-        event.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
-        const form = document.getElementById('myForm');
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-
-        try {
-            // Enviar para Supabase
-            const supabaseResult = await submitToSupabase(data);
-
-            try {
-                // Enviar para Google Apps Script
-                await submitToGoogleScript(data);
-            } catch (googleError) {
-                // Log do erro, mas não interrompe o fluxo
-                console.warn('Falha no envio para Google Sheets', googleError);
-            }
-
-            // Redirecionar para página de agradecimento
-            window.location.href = '/obrigado.html';
-        } catch (error) {
-            showFlashMessage(error.message, 'error');
-        }
-    }
-
-    // Adicionar event listener
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('myForm');
-        form.addEventListener('submit', submitForm);
-    });
-</script>
-
-<!-- Manter o form original, apenas adicionar action -->
-<form id="myForm" class="hidden" method="POST"
-      action="https://script.google.com/macros/s/AKfycbzdLpEgmmmlPFV_V-W0s9lF-f3QrtU4fBwmcQEAI5Et962tLFjsLms2FRSivtyYAx_3dA/exec">
-    <!-- Conteúdo do formulário permanece o mesmo -->
-    ...
-</form>
             <div class="buttons">
                 <button type="button" onclick="navigate(-1)">← Anterior</button>
                 <button type="submit">Enviar formulário</button>
@@ -233,12 +135,52 @@
     </main>
     <div id="flashMessage" class="flash-message" role="alert"></div>
 
-        <!-- Supabase CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
-        <script src="./scripts/supabase-config.js"></script>
-        <script src="./scripts/webform-mente.js"></script>
-        <script src="./scripts/webform-mente-navigate.js"></script>
-        <script src="./scripts/form-handler.js"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./webform-mente.js"></script>
+    <script src="./webform-mente-navigate.js"></script>
+    <script src="./form-handler.js"></script>
 
+    <script>
+        // Modificar função de submit existente
+        async function submitForm(event) {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            let supabaseSuccess = false;
+
+            try {
+                // Enviar para Supabase
+                supabaseSuccess = await submitToSupabase(data) || false;
+
+            } catch (error) {
+                console.warn('Erro ao enviar para Supabase:', error);
+            }
+
+            try {
+                // Sempre tentar enviar para Google Apps Script
+                const googleSuccess = await submitToGoogleScript(data) || false;
+
+            } catch (googleError) {
+                console.warn('Falha no envio para Google Sheets', googleError);
+            }
+
+            // Redirecionar para página de agradecimento se pelo menos um envio foi bem-sucedido
+            if (supabaseSuccess || googleSuccess) {
+
+                window.location.href = '/obrigado.html';
+            } else {
+                showFlashMessage('Nenhum envio foi bem-sucedido.', 'error');
+            }
+        }
+    </script>
 </body>
 </html>
