@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+    <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Pesquisa</title>
+    <link rel="stylesheet" href="./webform-mente.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .flash-message {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="intro" class="centered-text hide-on-click">
+        <h1>Tens Mente Empreendedora?-10.28</h1>
+        <h3>Preencha este inquérito e descubra GRÁTIS agora!</h3>
+        <div class="buttons">
+            <button id="startButton" class="hide-on-click" onclick="startSurvey()">Comece Aqui →</button>
+        </div>
+    </div>
+
+    <form id="myForm" class="hidden">
+        <!-- Seção Cor Favorita -->
+        <div class="form-container active" id="cor-favorita">
+            <div class="form-group">
+                <h2>Qual sua cor favorita?</h2>
+                <div role="radiogroup" aria-labelledby="cor-label">
+                    <div class="option-container">
+                        <input type="radio" id="azul" name="cor" value="azul" onclick="autoNext()">
+                        <label for="azul">Azul</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="vermelho" name="cor" value="vermelho" onclick="autoNext()">
+                        <label for="vermelho">Vermelho</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="verde" name="cor" value="verde" onclick="autoNext()">
+                        <label for="verde">Verde</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="amarelo" name="cor" value="amarelo" onclick="autoNext()">
+                        <label for="amarelo">Amarelo</label>
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button type="button" onclick="navigate(-1)" disabled>← Anterior</button>
+                <button type="button" onclick="navigate(1)">Próximo →</button>
+            </div>
+        </div>
+        <!-- Seção Animal -->
+        <div class="form-container" id="animal-favorito">
+            <div class="form-group">
+                <h2>Qual seu animal favorito?</h2>
+                <div role="radiogroup" aria-labelledby="animal-label">
+                    <div class="option-container">
+                        <input type="radio" id="cao" name="animal" value="cão" onclick="autoNext()">
+                        <label for="cao">Cão</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="gato" name="animal" value="gato" onclick="autoNext()">
+                        <label for="gato">Gato</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="leao" name="animal" value="leão" onclick="autoNext()">
+                        <label for="leao">Leão</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="zebra" name="animal" value="zebra" onclick="autoNext()">
+                        <label for="zebra">Zebra</label>
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button type="button" onclick="navigate(-1)">← Anterior</button>
+                <button type="button" onclick="navigate(1)">Próximo →</button>
+            </div>
+        </div>
+        <!-- Seção Hobbies -->
+        <div class="form-container" id="hobby-favorito">
+            <div class="form-group">
+                <h2>Qual seu hobby favorito?</h2>
+                <div role="radiogroup" aria-labelledby="hobby-label">
+                    <div class="option-container">
+                        <input type="radio" id="musica" name="hobby" value="música" onclick="autoNext()">
+                        <label for="musica">Música</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="ler" name="hobby" value="ler" onclick="autoNext()">
+                        <label for="ler">Leitura</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="teatro" name="hobby" value="teatro" onclick="autoNext()">
+                        <label for="teatro">Teatro</label>
+                    </div>
+                    <div class="option-container">
+                        <input type="radio" id="arte" name="hobby" value="arte" onclick="autoNext()">
+                        <label for="arte">Arte</label>
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button type="button" onclick="navigate(-1)">← Anterior</button>
+                <button type="button" onclick="navigate(1)">Próximo →</button>
+            </div>
+        </div>
+        <!-- Seção Dados Pessoais -->
+        <div class="form-container" id="dados-pessoais">
+            <div class="form-group">
+                <label for="nome">Nome completo</label>
+                <input type="text" id="nome" name="nome" required 
+                       aria-describedby="nome-help"
+                       pattern="[A-Za-zÀ-ÿ\s]{5,}">
+            </div>
+            <div class="buttons">
+                <button type="button" onclick="navigate(-1)">← Anterior</button>
+                <button type="button" onclick="navigate(1)">Próximo →</button>
+            </div>
+        </div>
+        <!-- Seção Contato -->
+        <div class="form-container" id="dados-contato">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required
+                       aria-describedby="email-help"
+                       pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}">
+            </div>
+            <div class="buttons">
+                <button type="button" onclick="navigate(-1)">← Anterior</button>
+                <button type="submit">Enviar formulário</button>
+            </div>
+        </div>
+    </form>
+
+    <main>
+    </main>
+    <div id="flashMessage" class="flash-message" role="alert" style="display:none;"></div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
+    <!-- Dependências próprias -->
+    <script src="./webform-mente.js"></script>
+    <script src="./webform-mente-navigate.js"></script>
+    <!-- Caso não seja utilizado o form-handler.js, remova-o -->
+    <!-- <script src="./form-handler.js"></script> -->
+
+    <script>
+        function getFormData() {
+            const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const dados = {};
+            formData.forEach((value, key) => {
+                dados[key] = value;
+            });
+            return dados;
+        }
+
+        document.getElementById('myForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const dados = getFormData();
+
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                // Verificar se a resposta foi bem-sucedida (código 2xx)
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(result);
+                    if (result.success) {
+                        window.location.href = '/obrigado.html';
+                    } else {
+                        const flashMessage = document.getElementById('flashMessage');
+                        flashMessage.textContent = 'Falha ao enviar o formulário.';
+                        flashMessage.style.display = 'block';
+                    }
+                } else {
+                  // Se a resposta não foi bem sucedida, ler o erro
+                  const errorText = await response.text();
+                  const flashMessage = document.getElementById('flashMessage');
+                  flashMessage.textContent = `Falha ao enviar o formulário: ${errorText}`;
+                  flashMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error(error);
+                const flashMessage = document.getElementById('flashMessage');
+                flashMessage.textContent = 'Erro ao enviar o formulário.';
+                flashMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

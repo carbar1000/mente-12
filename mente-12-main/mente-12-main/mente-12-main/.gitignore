@@ -1,0 +1,48 @@
+# Dependências
+node_modules/
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Vercel
+.vercel
+
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+<<<<<<< HEAD
+# Arquivos de configuração de IDE
+.vscode/
+.idea/
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+
+# Pasta de build (se aplicável)
+
+=======
+# Arquivos de configuração de IDE
+.vscode/
+.idea/
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+
+# Pasta de build (se aplicável)
+>>>>>>> 387ee8b3c7c3a044edf871295819a46796c03c59
+dist/
+build/
