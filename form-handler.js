@@ -9,14 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
 async function handleSubmit(event) {
     event.preventDefault();
     
-    // Armazena a referência do formulário no início da função
     const form = event.target;
     
     if (!validateForm()) {
         return;
     }
 
-    // Obtém o botão de envio no início
     const submitButton = form.querySelector('button[type="submit"]');
     if (submitButton) {
         submitButton.disabled = true;
@@ -26,9 +24,9 @@ async function handleSubmit(event) {
         const formData = new FormData(form);
         const dados = Object.fromEntries(formData.entries());
 
-        // Mostra mensagem de carregamento
         showFlashMessage('Enviando formulário...', 'info');
 
+        // Usar caminho relativo para a API
         const response = await fetch('/api/submitForm', {
             method: 'POST',
             headers: {
@@ -38,29 +36,28 @@ async function handleSubmit(event) {
             body: JSON.stringify(dados)
         });
 
-        // Primeiro verifica se a resposta é JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Resposta do servidor não é JSON válido');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+                error: `Erro HTTP: ${response.status} ${response.statusText}`
+            }));
+            throw new Error(errorData.error || 'Erro ao enviar dados');
         }
 
         const result = await response.json();
 
-        if (!response.ok) {
-            throw new Error(result.error || 'Erro ao enviar dados');
-        }
-
         if (result.success) {
             window.location.href = '/obrigado.html';
         } else {
-            throw new Error('Falha ao salvar os dados');
+            throw new Error(result.error || 'Falha ao salvar os dados');
         }
 
     } catch (error) {
         console.error('Erro ao enviar as respostas:', error);
-        showFlashMessage('Erro ao enviar o formulário. Por favor, tente novamente.', 'error');
+        showFlashMessage(
+            `Erro ao enviar o formulário: ${error.message}. Por favor, tente novamente.`,
+            'error'
+        );
     } finally {
-        // Reabilita o botão de envio usando a referência do formulário armazenada
         if (submitButton) {
             submitButton.disabled = false;
         }
