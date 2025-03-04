@@ -1,3 +1,8 @@
+function initializeForm() {
+    const csrfToken = generateCSRFToken(); // This function is already defined in submitForm.js
+    document.getElementById('csrf_token').value = csrfToken;
+}
+
 // UI Navigation Functions 
 function startSurvey() {
     const intro = document.getElementById('intro');
@@ -6,6 +11,7 @@ function startSurvey() {
     if (intro && form) {
         intro.classList.add('hidden');
         form.classList.remove('hidden');
+        initializeForm(); // Initialize the form with CSRF token
     }
 }
 
