@@ -1,4 +1,7 @@
 |-- .gitignore
+|-- .vercel
+    |-- project.json
+    |-- README.txt
 |-- form-handler.js
 |-- index.html
 |-- mente-12
