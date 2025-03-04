@@ -1,65 +1,79 @@
-const { createClient } = require('@supabase/supabase-js')
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase URL e/ou chave anônima não configuradas');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+        persistSession: false
+    }
+});
+
+console.log('Supabase client configurado com URL:', supabaseUrl);
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ 
-            success: false, 
-            message: 'Método não permitido' 
-        });
-    }
+    if (req.method === 'POST') {
+        try {
+            // Validação básica dos dados
+            if (!req.body || Object.keys(req.body).length === 0) {
+                return res.status(400).json({ error: 'Dados do formulário inválidos' });
+            }
 
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        console.error('Variáveis de ambiente do Supabase não configuradas');
-        return res.status(500).json({ 
-            success: false, 
-            message: 'Erro de configuração do servidor' 
-        });
-    }
+            console.log('Dados recebidos:', req.body);
+            
+            const { data, error } = await supabase
+                .from('respostas')
+                .insert([req.body])
+                .select();
 
-    const supabase = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
-        {
-            auth: { autoRefreshToken: false, persistSession: false }
-        }
-    );
+            if (error) {
+                console.error('Erro ao enviar dados:', {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code
+                });
+                return res.status(500).json({ 
+                    error: 'Erro ao salvar dados',
+                    details: error.message,
+                    code: error.code
+                });
+            }
 
-    try {
-        const formData = req.body;
-        
-        if (!formData || Object.keys(formData).length === 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Dados do formulário não fornecidos' 
+            console.log('Dados enviados com sucesso:', data);
+            
+            return res.status(200).json({
+                success: true,
+                data: data 
+
             });
-        }
 
-        const { data, error } = await supabase
-            .from('respostas')
-            .insert([formData])
-            .select();
-
-        if (error) {
-            console.error('Erro Supabase:', error);
+        } catch (error) {
+            console.error('Erro ao processar requisição:', error);
             return res.status(500).json({ 
-                success: false, 
-                message: 'Erro ao inserir dados',
-                error: error.message 
+                error: 'Erro interno do servidor',
+                details: error.message 
             });
         }
-
-        return res.status(200).json({ 
-            success: true, 
-            message: 'Dados salvos com sucesso',
-            data: data
-        });
-
-    } catch (error) {
-        console.error('Erro:', error);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'Erro ao processar requisição',
-            error: error.message 
+    } else {
+        return res.status(405).json({ 
+            error: 'Método não permitido',
+            allowed: ['POST'] 
         });
     }
 }
+
+
+
+
+
+
+
+
+
+
+
