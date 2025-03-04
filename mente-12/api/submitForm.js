@@ -1,59 +1,65 @@
 const { createClient } = require('@supabase/supabase-js')
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido' });
-  }
-
-  // Validar se temos as variáveis de ambiente
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('Variáveis de ambiente do Supabase não configuradas');
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Erro de configuração do servidor' 
-    });
-  }
-
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  try {
-    const formData = req.body;
-    
-    // Log para debug
-    console.log('Dados recebidos:', formData);
-
-    if (!formData || Object.keys(formData).length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Dados do formulário não fornecidos' 
-      });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ 
+            success: false, 
+            message: 'Método não permitido' 
+        });
     }
 
-    const { data, error } = await supabase
-      .from('respostas')
-      .insert([formData]);
-
-    if (error) {
-      console.error('Erro Supabase:', error);
-      throw error;
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.error('Variáveis de ambiente do Supabase não configuradas');
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Erro de configuração do servidor' 
+        });
     }
 
-    console.log('Dados salvos com sucesso:', data);
+    const supabase = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        {
+            auth: { autoRefreshToken: false, persistSession: false }
+        }
+    );
 
-    res.status(200).json({ 
-      success: true, 
-      message: 'Dados salvos com sucesso'
-    });
+    try {
+        const formData = req.body;
+        
+        if (!formData || Object.keys(formData).length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Dados do formulário não fornecidos' 
+            });
+        }
 
-  } catch (error) {
-    console.error('Erro detalhado:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro ao salvar dados',
-      error: error.message 
-    });
-  }
+        const { data, error } = await supabase
+            .from('respostas')
+            .insert([formData])
+            .select();
+
+        if (error) {
+            console.error('Erro Supabase:', error);
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Erro ao inserir dados',
+                error: error.message 
+            });
+        }
+
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Dados salvos com sucesso',
+            data: data
+        });
+
+    } catch (error) {
+        console.error('Erro:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Erro ao processar requisição',
+            error: error.message 
+        });
+    }
 }
