@@ -142,7 +142,6 @@
 
     <!-- Script de submissão do formulário -->
     <script>
-        // Modificar função de submit existente
         async function submitForm(event) {
             event.preventDefault();
 
@@ -155,9 +154,6 @@
             const data = Object.fromEntries(formData.entries());
 
             let supabaseSuccess = false;
-            let googleSuccess = false;
-            let supabaseError = null;
-            let googleError = null;
 
             try {
                 // Enviar para Supabase via API
@@ -169,42 +165,33 @@
                     body: JSON.stringify(data)
                 });
 
-                const result = await response.json();
-                supabaseSuccess = result.success;
-                if (!result.success) {
-                    supabaseError = result.message;
+                if (response.ok) {
+                    const result = await response.json();
+                    supabaseSuccess = result.success;
                 }
-
             } catch (error) {
-                supabaseError = error.message;
                 console.warn('Erro ao enviar para Supabase:', error);
             }
 
+            // Enviar para Google Sheet usando submit do próprio form
             try {
-                // Enviar para Google Apps Script
-                googleSuccess = await submitToGoogleScript(data);
-                if (!googleSuccess) {
-                    googleError = 'Falha no envio para Google Sheets';
-                }
-            } catch (error) {
-                googleError = error.message;
-                console.warn('Falha no envio para Google Sheets:', error);
-            }
-
-            // Lógica de feedback e redirecionamento
-            if (supabaseSuccess || googleSuccess) {
-                // Se pelo menos um dos envios foi bem-sucedido, redireciona
+                // Envio direto para Google Sheets
+                await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors'
+                });
+                
+                // Se chegou até aqui, consideramos sucesso
                 window.location.href = '/obrigado.html';
-            } else {
-                // Se ambos falharam, mostra mensagem detalhada
-                let errorMessage = 'Falha no envio do formulário:\n';
-                if (supabaseError) {
-                    errorMessage += `- Supabase: ${supabaseError}\n`;
+            } catch (error) {
+                console.warn('Erro ao enviar para Google Sheets:', error);
+                if (supabaseSuccess) {
+                    // Se pelo menos Supabase funcionou, redireciona
+                    window.location.href = '/obrigado.html';
+                } else {
+                    showFlashMessage('Erro ao enviar o formulário. Por favor, tente novamente.', 'error');
                 }
-                if (googleError) {
-                    errorMessage += `- Google Sheets: ${googleError}`;
-                }
-                showFlashMessage(errorMessage, 'error');
             }
         }
 
@@ -230,10 +217,12 @@
             }, timeout);
         }
 
-        // Adicione o event listener ao form
+        // Adicione o event listener ao form quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('myForm');
-            form.addEventListener('submit', submitForm);
+            if (form) {
+                form.addEventListener('submit', submitForm);
+            }
         });
     </script>
 </body>
