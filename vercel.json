@@ -1,18 +1,23 @@
 {
-  "version": 2,
-  "rootDirectory": "meu_projeto",
+  "version": 3,
   "builds": [
     {
-      "src": "public/index.html",
+      "src": "*.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/api/submitForm", "dest": "api/submitForm.js" }
-  ],
-  "functions": {
-    "api/submitForm.js": {
-      "runtime": "nodejs18.x"
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
-  }
+  ]
 }
