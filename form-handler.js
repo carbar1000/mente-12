@@ -26,7 +26,6 @@ async function handleSubmit(event) {
 
         showFlashMessage('Enviando formulário...', 'info');
 
-        // Usar caminho relativo para a API
         const response = await fetch('/api/submitForm', {
             method: 'POST',
             headers: {
@@ -36,14 +35,13 @@ async function handleSubmit(event) {
             body: JSON.stringify(dados)
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                error: `Erro HTTP: ${response.status} ${response.statusText}`
-            }));
-            throw new Error(errorData.error || 'Erro ao enviar dados');
-        }
-
         const result = await response.json();
+
+        if (!response.ok) {
+            // Extrai a mensagem de erro da resposta
+            const errorMessage = result.error || result.details || 'Erro desconhecido';
+            throw new Error(errorMessage);
+        }
 
         if (result.success) {
             window.location.href = '/obrigado.html';
@@ -53,8 +51,21 @@ async function handleSubmit(event) {
 
     } catch (error) {
         console.error('Erro ao enviar as respostas:', error);
+        
+        // Determina a mensagem de erro apropriada
+        let errorMessage;
+        if (error.message && error.message !== '[object Object]') {
+            errorMessage = error.message;
+        } else if (error.error) {
+            errorMessage = error.error;
+        } else if (error.details) {
+            errorMessage = error.details;
+        } else {
+            errorMessage = 'Ocorreu um erro ao enviar o formulário';
+        }
+
         showFlashMessage(
-            `Erro ao enviar o formulário: ${error.message}. Por favor, tente novamente.`,
+            `Erro ao enviar o formulário: ${errorMessage}. Por favor, tente novamente.`,
             'error'
         );
     } finally {
