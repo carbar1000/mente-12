@@ -12,7 +12,9 @@ async function submitForm(event) {
     let supabaseSuccess = false;
 
     try {
-        // Enviar para Supabase via API
+        // Log para debug
+        console.log('Enviando dados:', data);
+
         const response = await fetch('/api/submitForm', {
             method: 'POST',
             headers: {
@@ -22,34 +24,38 @@ async function submitForm(event) {
         });
 
         const result = await response.json();
-        supabaseSuccess = result.success;
-    } catch (error) {
-        console.warn('Erro ao enviar para Supabase:', error);
-    }
+        console.log('Resposta da API:', result);
 
-    // Enviar para Google Sheet usando submit do próprio form
-    try {
+        if (!response.ok) {
+            throw new Error(result.message || 'Erro ao enviar para Supabase');
+        }
+
+        supabaseSuccess = result.success;
+
+        // Enviar para Google Sheets
         await fetch(form.action, {
             method: 'POST',
             body: formData,
             mode: 'no-cors'
         });
         
-        // Se chegou até aqui, consideramos sucesso
+        // Se chegou até aqui, redireciona
         window.location.href = '/obrigado.html';
     } catch (error) {
-        console.warn('Erro ao enviar para Google Sheets:', error);
-        if (supabaseSuccess) {
-            // Se pelo menos Supabase funcionou, redireciona
-            window.location.href = '/obrigado.html';
-        } else {
+        console.error('Erro detalhado:', error);
+        if (!supabaseSuccess) {
             showFlashMessage('Erro ao enviar o formulário. Por favor, tente novamente.', 'error');
         }
     }
 }
 
-// Adicione o event listener ao form
+// Remover qualquer outro event listener duplicado
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('myForm');
-    form.addEventListener('submit', submitForm);
+    if (form) {
+        // Remover listeners anteriores
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+        newForm.addEventListener('submit', submitForm);
+    }
 window.submitToGoogleScript = submitToGoogleScript;
