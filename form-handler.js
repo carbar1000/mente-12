@@ -40,3 +40,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('myForm');
     form.addEventListener('submit', submitForm);
 });
+
+async function submitToGoogleScript(data) {
+    // Mantenha sua implementação existente do Google Apps Script
+    try {
+        // Seu código existente para envio ao Google Sheets
+        // ...
+        return true;
+    } catch (error) {
+        console.error('Erro no envio para Google Sheets:', error);
+        return false;
+    }
+}
+
+// Exporte a função se necessário
+window.submitToGoogleScript = submitToGoogleScript;

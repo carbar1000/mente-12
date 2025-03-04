@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90</text></svg>">>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
     <meta name="theme-color" content="#ffffff">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário de Pesquisa</title>
-    <link rel="stylesheet" href="./webform-mente.css">
+    <link rel="stylesheet" href="webform-mente.css">
     <style>
         .hidden {
             display: none;
@@ -15,7 +15,7 @@
 </head>
 <body>
     <div id="intro" class="centered-text hide-on-click">
-        <h1>Tens Mente Empreendedora? >>>> 12.04 </h1>
+        <h1>Tens Mente Empreendedora? >>>> 12.05 </h1>
         <h3>Preencha este inquérito e descubra GRÁTIS agora!</h3>
         <div class="buttons">
             <button id="startButton" class="hide-on-click" onclick="startSurvey()">Comece Aqui →</button>
@@ -135,13 +135,12 @@
     </main>
     <div id="flashMessage" class="flash-message" role="alert"></div>
 
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
-    <script src="./supabase-config.js"></script>
-    <script src="./webform-mente.js"></script>
-    <script src="./webform-mente-navigate.js"></script>
-    <script src="./form-handler.js"></script>
+    <!-- Scripts necessários -->
+    <script src="webform-mente.js"></script>
+    <script src="webform-mente-navigate.js"></script>
+    <script src="form-handler.js"></script>
 
+    <!-- Script de submissão do formulário -->
     <script>
         // Modificar função de submit existente
         async function submitForm(event) {
@@ -156,31 +155,86 @@
             const data = Object.fromEntries(formData.entries());
 
             let supabaseSuccess = false;
+            let googleSuccess = false;
+            let supabaseError = null;
+            let googleError = null;
 
             try {
-                // Enviar para Supabase
-                supabaseSuccess = await submitToSupabase(data) || false;
+                // Enviar para Supabase via API
+                const response = await fetch('/api/submitForm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                supabaseSuccess = result.success;
+                if (!result.success) {
+                    supabaseError = result.message;
+                }
 
             } catch (error) {
+                supabaseError = error.message;
                 console.warn('Erro ao enviar para Supabase:', error);
             }
 
             try {
-                // Sempre tentar enviar para Google Apps Script
-                const googleSuccess = await submitToGoogleScript(data) || false;
-
-            } catch (googleError) {
-                console.warn('Falha no envio para Google Sheets', googleError);
+                // Enviar para Google Apps Script
+                googleSuccess = await submitToGoogleScript(data);
+                if (!googleSuccess) {
+                    googleError = 'Falha no envio para Google Sheets';
+                }
+            } catch (error) {
+                googleError = error.message;
+                console.warn('Falha no envio para Google Sheets:', error);
             }
 
-            // Redirecionar para página de agradecimento se pelo menos um envio foi bem-sucedido
+            // Lógica de feedback e redirecionamento
             if (supabaseSuccess || googleSuccess) {
-
+                // Se pelo menos um dos envios foi bem-sucedido, redireciona
                 window.location.href = '/obrigado.html';
             } else {
-                showFlashMessage('Nenhum envio foi bem-sucedido.', 'error');
+                // Se ambos falharam, mostra mensagem detalhada
+                let errorMessage = 'Falha no envio do formulário:\n';
+                if (supabaseError) {
+                    errorMessage += `- Supabase: ${supabaseError}\n`;
+                }
+                if (googleError) {
+                    errorMessage += `- Google Sheets: ${googleError}`;
+                }
+                showFlashMessage(errorMessage, 'error');
             }
         }
+
+        // Melhorar a função showFlashMessage para lidar com quebras de linha
+        function showFlashMessage(message, type) {
+            const flashMessageDiv = document.getElementById('flashMessage');
+            // Substituir quebras de linha por <br>
+            flashMessageDiv.innerHTML = message.replace(/\n/g, '<br>');
+            flashMessageDiv.className = `flash-message ${type}`;
+            flashMessageDiv.style.display = 'block';
+            
+            // Posicionar a mensagem no topo da página
+            flashMessageDiv.style.position = 'fixed';
+            flashMessageDiv.style.top = '20px';
+            flashMessageDiv.style.left = '50%';
+            flashMessageDiv.style.transform = 'translateX(-50%)';
+            flashMessageDiv.style.zIndex = '1000';
+            
+            // Manter a mensagem visível por mais tempo quando houver erro
+            const timeout = type === 'error' ? 5000 : 3000;
+            setTimeout(() => {
+                flashMessageDiv.style.display = 'none';
+            }, timeout);
+        }
+
+        // Adicione o event listener ao form
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('myForm');
+            form.addEventListener('submit', submitForm);
+        });
     </script>
 </body>
 </html>
