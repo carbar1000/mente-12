@@ -9,20 +9,22 @@ document.addEventListener('DOMContentLoaded', function() {
 async function handleSubmit(event) {
     event.preventDefault();
     
+    // Armazena a referência do formulário no início da função
+    const form = event.target;
+    
     if (!validateForm()) {
         return;
     }
 
+    // Obtém o botão de envio no início
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+
     try {
-        const form = event.target;
         const formData = new FormData(form);
         const dados = Object.fromEntries(formData.entries());
-
-        // Desabilita o botão de envio
-        const submitButton = form.querySelector('button[type="submit"]');
-        if (submitButton) {
-            submitButton.disabled = true;
-        }
 
         // Mostra mensagem de carregamento
         showFlashMessage('Enviando formulário...', 'info');
@@ -58,8 +60,7 @@ async function handleSubmit(event) {
         console.error('Erro ao enviar as respostas:', error);
         showFlashMessage('Erro ao enviar o formulário. Por favor, tente novamente.', 'error');
     } finally {
-        // Reabilita o botão de envio
-        const submitButton = form.querySelector('button[type="submit"]');
+        // Reabilita o botão de envio usando a referência do formulário armazenada
         if (submitButton) {
             submitButton.disabled = false;
         }
