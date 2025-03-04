@@ -14,8 +14,13 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 export default async function handler(req, res) {
+    // Configura os headers de resposta
+    res.setHeader('Content-Type', 'application/json');
+
+    // Verifica o método HTTP
     if (req.method !== 'POST') {
         return res.status(405).json({ 
+            success: false,
             error: 'Método não permitido',
             allowed: ['POST'] 
         });
@@ -24,12 +29,16 @@ export default async function handler(req, res) {
     try {
         // Validação básica dos dados
         if (!req.body || Object.keys(req.body).length === 0) {
-            return res.status(400).json({ error: 'Dados do formulário inválidos' });
+            return res.status(400).json({ 
+                success: false,
+                error: 'Dados do formulário inválidos' 
+            });
         }
 
+        // Log dos dados recebidos
         console.log('Dados recebidos:', req.body);
 
-        // Adiciona timestamp ao dados
+        // Adiciona timestamp aos dados
         const dadosComTimestamp = {
             ...req.body,
             created_at: new Date().toISOString()
@@ -50,6 +59,7 @@ export default async function handler(req, res) {
             });
             
             return res.status(500).json({ 
+                success: false,
                 error: 'Erro ao salvar dados',
                 details: error.message,
                 code: error.code
@@ -66,6 +76,7 @@ export default async function handler(req, res) {
     } catch (error) {
         console.error('Erro ao processar requisição:', error);
         return res.status(500).json({ 
+            success: false,
             error: 'Erro interno do servidor',
             details: error.message 
         });
